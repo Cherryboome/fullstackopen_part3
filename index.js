@@ -36,14 +36,25 @@ app.get("/api/persons", (req, res) => {
   res.json(persons);
 });
 
-const PORT = 3001;
+app.get("/api/persons/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const person = persons.find(person => person.id === id);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  if (person) {
+    res.json(person);
+  } else {
+    res.status(404).end();
+  }
 });
 
 app.get("/info", (req, res) => {
   const date = new Date();
   res.send(`<div><p>Phonebook has info for ${personsNum()}</p> 
   <p>${date}</p></div>`);
+});
+
+const PORT = 3001;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
