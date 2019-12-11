@@ -6,7 +6,34 @@ const bodyParser = require("body-parser");
 
 app.use(bodyParser.json());
 
-app.use(morgan("tiny"));
+app.use(
+  morgan((tokens, req, res) => {
+    const body = req.body;
+
+    if (tokens.method(req, res) === "POST") {
+      return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, "content-length"),
+        "-",
+        tokens["response-time"](req, res),
+        "ms",
+        JSON.stringify(body)
+      ].join(" ");
+    } else {
+      return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, "content-length"),
+        "-",
+        tokens["response-time"](req, res),
+        "ms"
+      ].join(" ");
+    }
+  })
+);
 
 let persons = [
   {
