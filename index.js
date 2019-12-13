@@ -7,7 +7,6 @@ const cors = require("cors");
 
 app.use(bodyParser.json());
 app.use(cors());
-app.use(express.static("build"));
 
 app.use(
   morgan((tokens, req, res) => {
@@ -60,6 +59,8 @@ let persons = [
     id: 4
   }
 ];
+
+app.use(express.static("build"));
 
 const personsNum = () => {
   if (persons.length === 1) {
