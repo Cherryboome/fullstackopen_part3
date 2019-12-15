@@ -8,6 +8,7 @@ const cors = require("cors");
 
 const Person = require("./models/person");
 
+app.use(express.static("build"));
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -40,31 +41,6 @@ app.use(
   })
 );
 
-// let persons = [
-//   {
-//     name: "Arto Hellas",
-//     number: "040-123-4567",
-//     id: 1
-//   },
-//   {
-//     name: "Ada Lovelace",
-//     number: "040-345-0987",
-//     id: 2
-//   },
-//   {
-//     name: "Dan Abramov",
-//     number: "040-213-7648",
-//     id: 3
-//   },
-//   {
-//     name: "Mary Poppendieck",
-//     number: "040-746-0399",
-//     id: 4
-//   }
-// ];
-
-app.use(express.static("build"));
-
 const personsNum = () => {
   if (persons.length === 1) {
     return `${persons.length} person`;
@@ -80,17 +56,15 @@ app.get("/api/persons", (req, res) => {
 });
 
 app.get("/api/persons/:id", (req, res) => {
-  Person.findById(req.params.id).then(person => {
-    res.json(person.toJSON());
-  });
-  // const id = Number(req.params.id);
-  // const person = persons.find(person => person.id === id);
-
-  // if (person) {
-  //   res.json(person);
-  // } else {
-  //   res.status(404).end();
-  // }
+  Person.findById(req.params.id)
+    .then(person => {
+      if (person) {
+        res.json(person.toJSON());
+      } else {
+        res.status(404).end();
+      }
+    })
+    .catch(error => next(error));
 });
 
 app.get("/api/info", (req, res) => {
@@ -99,30 +73,16 @@ app.get("/api/info", (req, res) => {
     <p>${date}</p></div>`);
 });
 
-app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  persons = persons.filter(person => person.id !== id);
-
-  res.status(204).end();
+app.delete("/api/persons/:id", (req, res, next) => {
+  Person.findByIdAndRemove(req.params.id)
+    .then(result => {
+      res.status(204).end();
+    })
+    .catch(error => next(error));
 });
-
-// const generateId = () => {
-//   const id = persons.length > 0 ? Math.round(Math.random() * 1000) : 0;
-//   const personId = persons.find(person => person.id === id);
-
-//   if (personId) {
-//     return generateId();
-//   } else {
-//     return id;
-//   }
-// };
 
 app.post("/api/persons", (req, res) => {
   const body = req.body;
-
-  // const existingPerson = persons.find(
-  //   person => person.name.toLowerCase() === body.name.toLowerCase()
-  // );
 
   if (body.name === undefined) {
     return res.status(400).json({
@@ -133,23 +93,15 @@ app.post("/api/persons", (req, res) => {
       error: "number missing"
     });
   }
-  // else if (existingPerson) {
-  //   return res.status(409).json({ error: "name must be unique" });
-  // }
 
   const person = new Person({
     name: body.name,
     number: body.number
-    // id: generateId()
   });
 
   person.save().then(savedPerson => {
     res.json(savedPerson.toJSON());
   });
-
-  // persons = persons.concat(person);
-
-  // res.json(person);
 });
 
 const PORT = process.env.PORT;
