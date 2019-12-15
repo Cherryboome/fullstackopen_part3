@@ -41,14 +41,6 @@ app.use(
   })
 );
 
-const personsNum = () => {
-  if (persons.length === 1) {
-    return `${persons.length} person`;
-  } else {
-    return `${persons.length} people`;
-  }
-};
-
 app.get("/api/persons", (req, res) => {
   Person.find({}).then(persons => {
     res.json(persons.map(person => person.toJSON()));
@@ -69,8 +61,15 @@ app.get("/api/persons/:id", (req, res, next) => {
 
 app.get("/api/info", (req, res) => {
   const date = new Date();
-  res.send(`<div><p>Phonebook has info for ${personsNum()}</p> 
-    <p>${date}</p></div>`);
+  Person.find({}).then(persons => {
+    res.send(
+      `<div><p>Phonebook has info for ${
+        persons.length === 1
+          ? persons.length + " person"
+          : persons.length + " people"
+      }</p><p>${date}</p></div>`
+    );
+  });
 });
 
 app.delete("/api/persons/:id", (req, res, next) => {
