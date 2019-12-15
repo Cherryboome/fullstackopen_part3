@@ -6,7 +6,11 @@ const url = process.env.MONGODB_URI;
 console.log("connecting to ", url);
 
 mongoose
-  .connect(url, { useUnifiedTopology: true, useNewUrlParser: true })
+  .connect(url, {
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useNewUrlParser: true
+  })
   .then(result => {
     console.log("connected to MongoDB");
   })
@@ -17,12 +21,14 @@ mongoose
 const personSchema = new mongoose.Schema({
   name: {
     type: String,
+    minlength: 3,
     required: true,
     unique: true,
     uniqueCaseInsensitive: true
   },
   number: {
     type: String,
+    minlength: 8,
     required: true,
     unique: true
   }
